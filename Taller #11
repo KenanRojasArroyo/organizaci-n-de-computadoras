@@ -1,0 +1,83 @@
+section .data
+msgOk db "Resultado: ", 0
+lenOk equ $ - msgOk
+
+msgErr db "Error: division entre cero", 0
+lenErr equ $ - msgErr
+
+newline db 10, 0
+lenNL equ $ - newline
+
+section .bss
+resultado resb 1
+
+section .text
+global _start
+
+_start:
+; Numeros hardcoded
+mov al, '8' ; primer número (ASCII)
+sub al, '0' ; convertir a entero (8)
+
+mov bl, '0' ; segundo número (ASCII)
+sub bl, '0' ; convertir a entero
+
+; Verificar división entre 0
+cmp bl, 0
+je .division_cero ; si BL == 0 error
+jmp .dividir ; si BL != 0 todo bien
+
+.division_cero:
+; Imprimir error
+mov eax, 4
+mov ebx, 1
+mov ecx, msgErr
+mov edx, lenErr
+int 0x80
+
+; Salto de línea
+mov eax, 4
+mov ebx, 1
+mov ecx, newline
+mov edx, lenNL
+int 0x80
+
+; Salir
+mov eax, 1
+xor ebx, ebx
+int 0x80
+
+.dividir:
+; Division AL / BL
+xor ah, ah
+div bl ; resultado en AL
+
+; Convertir a ASCII
+add al, '0'
+mov [resultado], al
+
+; Mostrar resultados
+mov eax, 4
+mov ebx, 1
+mov ecx, msgOk
+mov edx, lenOk
+int 0x80
+
+; Imprimir resultado
+mov eax, 4
+mov ebx, 1
+mov ecx, resultado
+mov edx, 1
+int 0x80
+
+; Salto de línea
+mov eax, 4
+mov ebx, 1
+mov ecx, newline
+mov edx, lenNL
+int 0x80
+
+; Salir
+mov eax, 1
+xor ebx, ebx
+int 0x80
