@@ -1,0 +1,53 @@
+;1
+%macro print_int 1
+mov eax, 4 ; Syscall número 4 (sys_write)
+mov ebx, 1 ; File descriptor 1 (stdout - pantalla)
+mov ecx, %1 ; Mueve el primer argumento de la macro a ECX
+mov edx, 4 ; Longitud de bytes a imprimir (4 bytes)
+int 0x80 ; Interrupción al kernel
+%endmacro
+
+section .data
+array dd 1, 2, 3, 4, 5 ; Define un arreglo de 5 enteros
+
+section .text
+global _start
+
+_start:
+mov ecx, 0 ; Índice del arreglo (contador i = 0)
+mov eax, 0 ; Acumulador para la suma (suma = 0)
+
+bucle:
+; Direccionamiento base + índice * escala
+mov ebx, [array + ecx*4]
+
+add eax, ebx ; eax = eax + ebx (acumula la suma)
+inc ecx ; Incrementa el índice (i++)
+cmp ecx, 5 ; Compara el índice con el tamaño del arreglo
+jl bucle ; Jump if Less: Si ecx < 5, salta a 'bucle'
+
+print_int eax ; Llama a la macro pasando 'eax' como argumento
+
+mov eax, 1 ; Syscall número 1 (sys_exit)
+xor ebx, ebx ; Estado de salida 0 (sin errores)
+int 0x80 ; Interrupción para cerrar el programa
+
+;2
+_start:
+mov ecx, 0 ; Inicializa el índice (i = 0)
+mov eax, 0 ; Inicializa el acumulador (suma = 0)
+
+bucle:
+; Acceso a memoria: Base + (Índice * Escala)
+mov ebx, [array + ecx*4]
+add eax, ebx ; Suma el valor recuperado al acumulador
+
+inc ecx ; Incrementa el contador (i++)
+cmp ecx, 5 ; Compara i con el tamaño del arreglo (5)
+jl bucle ; Jump Less: Si 1 < 5, salta a la etiqueta 'bucle'
+
+print_int eax
+
+mov eax, 1 ; Syscall de salida (sys_exit)
+xor ebx, ebx ; Código de retorno 0
+int 0x80 ; Interrupción al kernel
